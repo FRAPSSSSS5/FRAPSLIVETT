@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 Admin Panel - DADU MONYUN</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { align-items: flex-start; padding-top: 20px; padding-bottom: 40px; }
+    .container { max-width: 780px; }
+
+    /* LOGIN */
+    .login-card {
+      background: linear-gradient(160deg, rgba(8,25,70,0.97) 0%, rgba(5,15,50,0.99) 100%);
+      border: 3px solid rgba(255,255,255,0.8);
+      border-radius: 28px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(26,51,255,0.3), 0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    .login-title {
+      font-family: 'Lilita One', cursive;
+      font-size: 32px;
+      color: #fff;
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(100,180,255,0.8);
+    }
+
+    .login-subtitle {
+      color: rgba(150,200,255,0.7);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    .login-input {
+      width: 100%;
+      max-width: 320px;
+      background: rgba(0,20,80,0.8);
+      border: 2px solid rgba(100,160,255,0.5);
+      border-radius: 14px;
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 14px 20px;
+      outline: none;
+      text-align: center;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      transition: all 0.3s;
+    }
+
+    .login-input:focus {
+      border-color: rgba(150,200,255,0.9);
+      box-shadow: 0 0 20px rgba(26,100,255,0.4);
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #e6a000, #ffd700, #ffb300);
+      border: none;
+      border-radius: 14px;
+      color: #1a0a00;
+      font-family: 'Lilita One', cursive;
+      font-size: 20px;
+      padding: 14px 48px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: all 0.3s;
+      box-shadow: 0 0 20px rgba(255,200,0,0.4), 0 6px 20px rgba(0,0,0,0.4);
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(255,200,0,0.6), 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    .login-error {
+      color: #ff4444;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 14px;
+      display: none;
+    }
+
+    /* ADMIN PANEL */
+    .admin-panel { display: none; }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .admin-title {
+      font-family: 'Lilita One', cursive;
+      font-size: 28px;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(100,180,255,0.8);
+    }
+
+    .logout-btn {
+      background: rgba(200,0,0,0.3);
+      border: 2px solid rgba(255,100,100,0.4);
+      border-radius: 10px;
+      color: rgba(255,150,150,0.9);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(200,0,0,0.5);
+      border-color: rgba(255,100,100,0.7);
+      color: white;
+    }
+
+    /* SECTION CARDS */
+    .admin-section {
+      background: linear-gradient(160deg, rgba(8,25,70,0.95) 0%, rgba(5,15,50,0.98) 100%);
+      border: 3px solid rgba(255,255,255,0.85);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 20px rgba(26,51,255,0.2), 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .section-title {
+      font-family: 'Lilita One', cursive;
+      font-size: 18px;
+      color: rgba(150,200,255,0.95);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* MODE SELECTOR */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mode-btn {
+      padding: 12px 16px;
+      background: rgba(0,15,60,0.8);
+      border: 2px solid rgba(100,160,255,0.3);
+      border-radius: 12px;
+      color: rgba(150,200,255,0.8);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-btn:hover, .mode-btn.active {
+      border-color: rgba(150,200,255,0.8);
+      background: rgba(0,40,150,0.6);
+      color: white;
+      box-shadow: 0 0 15px rgba(26,100,255,0.3);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, rgba(26,51,255,0.6), rgba(0,100,200,0.4));
+      border-color: rgba(200,230,255,0.8);
+      box-shadow: 0 0 20px rgba(26,51,255,0.4);
+    }
+
+    /* FORCE COLOR GRID */
+    .force-color-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .force-color-btn {
+      padding: 12px 8px;
+      border-radius: 12px;
+      border: 3px solid rgba(255,255,255,0.2);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .force-color-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    .force-color-btn.selected {
+      border-color: white;
+      box-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+      transform: scale(1.05);
+    }
+
+    .force-color-btn.random-btn {
+      background: linear-gradient(135deg, #1a1a40, #2a2a60);
+      color: rgba(200,220,255,0.9);
+      grid-column: span 3;
+    }
+
+    .force-color-btn[data-force="merah"] { background: linear-gradient(135deg, #aa0000, #ff1a1a); }
+    .force-color-btn[data-force="oranye"] { background: linear-gradient(135deg, #aa4400, #ffa500); color: #1a0a00; }
+    .force-color-btn[data-force="kuning"] { background: linear-gradient(135deg, #aa7700, #ffd700); color: #1a0a00; }
+    .force-color-btn[data-force="hijau"] { background: linear-gradient(135deg, #004400, #00a000); }
+    .force-color-btn[data-force="biru"] { background: linear-gradient(135deg, #000aaa, #1a33ff); }
+    .force-color-btn[data-force="ungu"] { background: linear-gradient(135deg, #330066, #8000ff); }
+
+    /* PER DICE CONTROL */
+    .per-dice-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .per-dice-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(0,15,60,0.6);
+      border-radius: 12px;
+      border: 2px solid rgba(100,160,255,0.2);
+    }
+
+    .per-dice-label {
+      color: rgba(150,200,255,0.9);
+      font-size: 14px;
+      font-weight: 700;
+      min-width: 60px;
+    }
+
+    .per-dice-colors {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .per-dice-color {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .per-dice-color:hover, .per-dice-color.selected {
+      border-color: white;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      transform: scale(1.15);
+    }
+
+    .per-dice-color[data-color="random"] {
+      background: linear-gradient(135deg, #1a1a40, #3a3a70);
+      border-color: rgba(100,150,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* ACTION BUTTONS */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .action-btn {
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      font-family: 'Lilita One', cursive;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: left 0.4s;
+    }
+
+    .action-btn:hover::before { left: 140%; }
+
+    .btn-roll {
+      background: linear-gradient(135deg, #e6a000, #ffd700);
+      color: #1a0a00;
+      box-shadow: 0 0 20px rgba(255,200,0,0.4), 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .btn-force {
+      background: linear-gradient(135deg, #0022aa, #1a33ff);
+      color: white;
+      box-shadow: 0 0 20px rgba(26,51,255,0.4), 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .btn-reset {
+      background: linear-gradient(135deg, #660000, #aa1111);
+      color: white;
+      box-shadow: 0 0 20px rgba(150,0,0,0.3), 0 4px 15px rgba(0,0,0,0.4);
+      grid-column: span 2;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .action-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* NUM DICE ADMIN */
+    .num-dice-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .num-dice-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(0,15,60,0.8);
+      border: 2px solid rgba(100,160,255,0.3);
+      border-radius: 12px;
+      color: rgba(150,200,255,0.8);
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .num-dice-btn.active, .num-dice-btn:hover {
+      border-color: rgba(150,200,255,0.8);
+      background: rgba(0,40,150,0.6);
+      color: white;
+      box-shadow: 0 0 15px rgba(26,100,255,0.3);
+    }
+
+    /* LIVE PREVIEW */
+    .live-preview {
+      background: rgba(0,10,40,0.7);
+      border: 2px solid rgba(100,160,255,0.3);
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .preview-dice {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    /* RESULT LOG */
+    .result-log {
+      max-height: 160px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .log-entry {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(0,15,60,0.6);
+      border-radius: 10px;
+      font-size: 13px;
+      color: rgba(180,210,255,0.9);
+      font-weight: 600;
+    }
+
+    .log-time {
+      color: rgba(100,150,200,0.6);
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 50px;
+    }
+
+    .log-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .log-dot.merah { background: #ff1a1a; }
+    .log-dot.oranye { background: #ffa500; }
+    .log-dot.kuning { background: #ffd700; }
+    .log-dot.hijau { background: #00a000; }
+    .log-dot.biru { background: #1a33ff; }
+    .log-dot.ungu { background: #8000ff; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(0,40,120,0.95);
+      border: 2px solid rgba(100,200,255,0.6);
+      border-radius: 14px;
+      padding: 12px 20px;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 0 20px rgba(26,100,255,0.4);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 560px) {
+      .mode-grid { grid-template-columns: 1fr; }
+      .force-color-grid { grid-template-columns: repeat(2, 1fr); }
+      .force-color-btn.random-btn { grid-column: span 2; }
+      .action-grid { grid-template-columns: 1fr; }
+      .btn-reset { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="container" id="loginContainer">
+  <div class="login-card">
+    <div class="login-title">🔐 ADMIN PANEL</div>
+    <div class="login-subtitle">DADU MONYUN - Live Stream Control</div>
+    <input type="password" class="login-input" id="passwordInput" placeholder="Password Admin" 
+           onkeydown="if(event.key==='Enter') doLogin()">
+    <br>
+    <button class="login-btn" onclick="doLogin()">MASUK ▶</button>
+    <div class="login-error" id="loginError">❌ Password salah! Coba lagi.</div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="container admin-panel" id="adminPanel">
+
+  <div class="admin-header">
+    <div class="admin-title">⚙️ DADU MONYUN ADMIN</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="connection-badge" id="connBadge" style="padding:6px 12px;background:rgba(0,20,80,0.6);border-radius:20px;">
+        <div class="status-dot"></div>
+        <span id="connText" style="font-size:12px;color:rgba(150,200,255,0.8);font-weight:700;">Menghubungkan...</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">KELUAR</button>
+    </div>
+  </div>
+
+  <!-- JUMLAH DADU -->
+  <div class="admin-section">
+    <div class="section-title">⚄ Jumlah Dadu</div>
+    <div class="num-dice-row" id="numDiceBtns">
+      <button class="num-dice-btn" onclick="setNumDice(1)">1 DADU</button>
+      <button class="num-dice-btn active" onclick="setNumDice(2)">2 DADU</button>
+      <button class="num-dice-btn" onclick="setNumDice(3)">3 DADU</button>
+      <button class="num-dice-btn" onclick="setNumDice(4)">4 DADU</button>
+    </div>
+  </div>
+
+  <!-- MODE KONTROL -->
+  <div class="admin-section">
+    <div class="section-title">🎯 Mode Kontrol</div>
+    <div class="mode-grid">
+      <button class="mode-btn active" id="modeRandom" onclick="setMode('random')">
+        🎲 RANDOM NORMAL
+      </button>
+      <button class="mode-btn" id="modeForced" onclick="setMode('forced')">
+        🔒 FORCE WARNA
+      </button>
+    </div>
+
+    <!-- FORCE ALL -->
+    <div id="forceAllSection">
+      <div style="font-size:11px;color:rgba(150,200,255,0.7);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Force semua dadu:</div>
+      <div class="force-color-grid" id="forceColorBtns">
+        <button class="force-color-btn random-btn selected" data-force="random" onclick="setForceAll('random')">🎲 RANDOM (per dadu bisa diatur)</button>
+        <button class="force-color-btn" data-force="merah" onclick="setForceAll('merah')">🔴 MERAH</button>
+        <button class="force-color-btn" data-force="oranye" onclick="setForceAll('oranye')">🟠 ORANYE</button>
+        <button class="force-color-btn" data-force="kuning" onclick="setForceAll('kuning')">🟡 KUNING</button>
+        <button class="force-color-btn" data-force="hijau" onclick="setForceAll('hijau')">🟢 HIJAU</button>
+        <button class="force-color-btn" data-force="biru" onclick="setForceAll('biru')">🔵 BIRU</button>
+        <button class="force-color-btn" data-force="ungu" onclick="setForceAll('ungu')">🟣 UNGU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PER DICE CONTROL -->
+  <div class="admin-section" id="perDiceSection">
+    <div class="section-title">🎯 Kontrol Per Dadu</div>
+    <div class="per-dice-grid" id="perDiceGrid">
+      <!-- dynamically generated -->
+    </div>
+  </div>
+
+  <!-- LIVE PREVIEW -->
+  <div class="admin-section">
+    <div class="section-title">👁️ Preview Hasil</div>
+    <div class="live-preview" id="livePreview">
+      <span style="color:rgba(100,160,255,0.4);font-size:14px;font-weight:700;">Belum ada hasil</span>
+    </div>
+  </div>
+
+  <!-- AKTIF/MATIKAN WARNA -->
+  <div class="admin-section">
+    <div class="section-title">🎨 Aktifkan / Matikan Warna</div>
+    <div id="adminColorToggles" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+
+      <div class="color-toggle toggle-merah active" data-color="merah" onclick="adminToggleColor('merah', this)" style="cursor:pointer;padding:10px 12px;border-radius:12px;border:3px solid;display:flex;align-items:center;gap:8px;">
+        <div class="toggle-dot"></div>
+        <span class="toggle-label" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.5px;">MERAH</span>
+        <span class="toggle-pct" id="admin-pct-merah" style="margin-left:auto;font-size:12px;font-weight:700;opacity:0.7;">16.7%</span>
+      </div>
+
+      <div class="color-toggle toggle-oranye active" data-color="oranye" onclick="adminToggleColor('oranye', this)" style="cursor:pointer;padding:10px 12px;border-radius:12px;border:3px solid;display:flex;align-items:center;gap:8px;">
+        <div class="toggle-dot"></div>
+        <span class="toggle-label" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.5px;">ORANYE</span>
+        <span class="toggle-pct" id="admin-pct-oranye" style="margin-left:auto;font-size:12px;font-weight:700;opacity:0.7;">16.7%</span>
+      </div>
+
+      <div class="color-toggle toggle-kuning active" data-color="kuning" onclick="adminToggleColor('kuning', this)" style="cursor:pointer;padding:10px 12px;border-radius:12px;border:3px solid;display:flex;align-items:center;gap:8px;">
+        <div class="toggle-dot"></div>
+        <span class="toggle-label" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.5px;">KUNING</span>
+        <span class="toggle-pct" id="admin-pct-kuning" style="margin-left:auto;font-size:12px;font-weight:700;opacity:0.7;">16.7%</span>
+      </div>
+
+      <div class="color-toggle toggle-hijau active" data-color="hijau" onclick="adminToggleColor('hijau', this)" style="cursor:pointer;padding:10px 12px;border-radius:12px;border:3px solid;display:flex;align-items:center;gap:8px;">
+        <div class="toggle-dot"></div>
+        <span class="toggle-label" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.5px;">HIJAU</span>
+        <span class="toggle-pct" id="admin-pct-hijau" style="margin-left:auto;font-size:12px;font-weight:700;opacity:0.7;">16.7%</span>
+      </div>
+
+      <div class="color-toggle toggle-biru active" data-color="biru" onclick="adminToggleColor('biru', this)" style="cursor:pointer;padding:10px 12px;border-radius:12px;border:3px solid;display:flex;align-items:center;gap:8px;">
+        <div class="toggle-dot"></div>
+        <span class="toggle-label" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.5px;">BIRU</span>
+        <span class="toggle-pct" id="admin-pct-biru" style="margin-left:auto;font-size:12px;font-weight:700;opacity:0.7;">16.7%</span>
+      </div>
+
+      <div class="color-toggle toggle-ungu active" data-color="ungu" onclick="adminToggleColor('ungu', this)" style="cursor:pointer;padding:10px 12px;border-radius:12px;border:3px solid;display:flex;align-items:center;gap:8px;">
+        <div class="toggle-dot"></div>
+        <span class="toggle-label" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.5px;">UNGU</span>
+        <span class="toggle-pct" id="admin-pct-ungu" style="margin-left:auto;font-size:12px;font-weight:700;opacity:0.7;">16.7%</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="admin-section">
+    <div class="section-title">🎮 Aksi</div>
+    <div class="action-grid">
+      <button class="action-btn btn-roll" onclick="adminRoll()">🎲 ROLL SEKARANG</button>
+      <button class="action-btn btn-force" onclick="forceResult()">⚡ FORCE HASIL</button>
+      <button class="action-btn btn-reset" onclick="resetRandom()">🔄 RESET KE RANDOM</button>
+    </div>
+  </div>
+
+  <!-- RESULT LOG -->
+  <div class="admin-section">
+    <div class="section-title">📋 Log Hasil</div>
+    <div class="result-log" id="resultLog">
+      <div style="color:rgba(100,160,255,0.4);font-size:13px;text-align:center;padding:10px;">Belum ada hasil...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

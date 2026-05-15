@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Dice Color</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Extra dice area polish */
+    .dice-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<button class="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">⛶ FULLSCREEN</button>
+
+<div class="container">
+  <div class="main-card">
+
+    <!-- TITLE -->
+    <div class="title-section">
+      <div class="game-title">Live Dice Color</div>
+      <div class="title-stars">★ ★ ★ ★ ★</div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls-row">
+      <div class="select-wrapper">
+        <label>⚄ JUMLAH WARNA</label>
+        <select class="styled-select" id="numDiceSelect" onchange="updateNumDice()">
+          <option value="1">1 WARNA</option>
+          <option value="2" selected>2 WARNA</option>
+          <option value="3">3 WARNA</option>
+          <option value="4">4 WARNA</option>
+        </select>
+      </div>
+      <div class="select-wrapper">
+        <label>🎨 MODE</label>
+        <select class="styled-select" id="modeSelect">
+          <option value="warna">DADU WARNA</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- DICE AREA -->
+    <div class="dice-area" id="diceArea">
+      <div class="dice-container" id="diceContainer">
+        <div class="dice-placeholder">Tekan SPIN untuk mulai!</div>
+      </div>
+    </div>
+
+    <div class="rolling-text" id="rollingText"> Mengocok Warna... </div>
+
+    <!-- ROLL BUTTON -->
+    <button class="roll-btn" id="rollBtn" onclick="rollDice()">
+      <span class="btn-icon"></span> SPIN LAGI!
+    </button>
+
+    <!-- COLOR INFO -->
+    <div class="color-info">
+      Warna yang mungkin adalah:
+      <span class="color-name c-merah">Merah</span>,
+      <span class="color-name c-oranye">Oranye</span>,
+      <span class="color-name c-kuning">Kuning</span>,
+      <span class="color-name c-hijau">Hijau</span>,
+      <span class="color-name c-biru">Biru</span>, dan
+      <span class="color-name c-ungu">Ungu</span>.
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <div class="connection-badge" id="connectionBadge">
+        <div class="status-dot"></div>
+        <span id="connectionText">Menghubungkan...</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
