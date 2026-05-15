@@ -181,7 +181,7 @@ io.on('connection', (socket) => {
   });
 });
 
-app.get('/admin', (req, res) => {
+app.get('/FPG6413', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin.html'));
 });
 
