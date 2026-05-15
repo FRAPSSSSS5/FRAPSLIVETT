@@ -2,6 +2,24 @@
 
 const socket = io();
 
+// Cek apakah ini layar utama (?screen=main)
+const urlParams = new URLSearchParams(window.location.search);
+const isMainScreen = urlParams.get('screen') === 'main';
+
+if (isMainScreen) {
+  // Daftarkan sebagai layar utama saat connect
+  socket.on('connect', () => {
+    socket.emit('register-main');
+  });
+  socket.on('registered-as-main', () => {
+    // Tampilkan badge layar utama
+    const badge = document.createElement('div');
+    badge.style.cssText = 'position:fixed;top:10px;right:10px;background:#00a000;color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;z-index:9999;';
+    badge.textContent = '🖥️ LAYAR UTAMA AKTIF';
+    document.body.appendChild(badge);
+  });
+}
+
 const COLORS = ['merah', 'oranye', 'kuning', 'hijau', 'biru', 'ungu'];
 const COLOR_HEX = {
   merah: '#ff1a1a',

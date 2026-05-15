@@ -407,3 +407,21 @@ async function adminToggleColor(color, el) {
     showToast('❌ Gagal update warna', true);
   }
 }
+
+// ===== CEK STATUS LAYAR UTAMA =====
+async function checkMainScreen() {
+  try {
+    const res = await fetch('/api/main-screen-status');
+    const data = await res.json();
+    const el = document.getElementById('mainScreenStatus');
+    if (el) {
+      if (data.active) {
+        el.innerHTML = '🖥️ Layar Utama: <span style="color:#00ff88">AKTIF ✅</span>';
+      } else {
+        el.innerHTML = '🖥️ Layar Utama: <span style="color:#ff4444">BELUM TERDAFTAR ❌</span><br><small style="color:#aaa">Buka <b>livedice.mooo.com?screen=main</b> di laptop live kamu</small>';
+      }
+    }
+  } catch(e) {}
+}
+setInterval(checkMainScreen, 3000);
+checkMainScreen();

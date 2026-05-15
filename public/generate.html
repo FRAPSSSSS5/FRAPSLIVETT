@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buat Link Dadu Unik</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: #0a0a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+    .card {
+      background: #1a1a2e;
+      border: 2px solid #4a4aff;
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 480px;
+      width: 90%;
+    }
+    h1 { font-size: 2rem; margin-bottom: 10px; }
+    p { color: #aaa; margin-bottom: 30px; }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #4a4aff, #8000ff);
+      color: white;
+      padding: 16px 40px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .btn:hover { opacity: 0.85; }
+    .link-box {
+      background: #0a0a1a;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      display: none;
+    }
+    .link-box a {
+      color: #4a4aff;
+      word-break: break-all;
+      font-size: 1rem;
+    }
+    .copy-btn {
+      margin-top: 10px;
+      background: #333;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .copy-btn:hover { background: #555; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎲 Link Dadu Unik</h1>
+    <p>Buat link khusus kamu sendiri — dadumu tidak akan campur dengan orang lain!</p>
+    <button class="btn" onclick="generateLink()">✨ Buat Link Unik Saya</button>
+    <div class="link-box" id="linkBox">
+      <p style="color:#aaa; margin-bottom:8px;">Link unik kamu:</p>
+      <a id="generatedLink" href="#" target="_blank"></a>
+      <br>
+      <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+    </div>
+  </div>
+
+  <script>
+    function generateLink() {
+      const chars = 'abcdef0123456789';
+      let id = '';
+      for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
+      const link = window.location.origin + '/play/' + id;
+      const linkEl = document.getElementById('generatedLink');
+      linkEl.href = link;
+      linkEl.textContent = link;
+      document.getElementById('linkBox').style.display = 'block';
+    }
+
+    function copyLink() {
+      const link = document.getElementById('generatedLink').textContent;
+      navigator.clipboard.writeText(link).then(() => {
+        alert('Link berhasil di-copy!');
+      });
+    }
+  </script>
+</body>
+</html>

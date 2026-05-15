@@ -6,18 +6,15 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: '*' }
-});
+const io = new Server(server, { cors: { origin: '*' } });
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'monyun123';
 
-// Game state
 let gameState = {
-  mode: 'random', // 'random' | 'forced'
-  forcedColors: [], // array of colors per dice slot, e.g. ['merah', 'biru', null, null]
-  forceAll: null, // if set, all dice get this color
+  mode: 'random',
+  forcedColors: [],
+  forceAll: null,
   numDice: 2,
   lastResult: [],
   isRolling: false,
@@ -25,6 +22,9 @@ let gameState = {
 };
 
 const COLORS = ['merah', 'oranye', 'kuning', 'hijau', 'biru', 'ungu'];
+
+// Simpan socket ID layar utama (laptop untuk live)
+let mainScreenSocketId = null;
 
 function getRandomColor(activeColors) {
   if (!activeColors || activeColors.length === 0) activeColors = COLORS;
@@ -84,99 +84,108 @@ app.get('/api/state', (req, res) => {
   res.json(gameState);
 });
 
-// Admin routes
+// Daftarkan layar utama (laptop live)
+app.post('/api/register-main-screen', (req, res) => {
+  const { socketId } = req.body;
+  if (socketId) {
+    mainScreenSocketId = socketId;
+    console.log('Main screen registered:', socketId);
+    res.json({ success: true, message: 'Layar utama terdaftar!' });
+  } else {
+    res.json({ success: false });
+  }
+});
+
+// Cek apakah layar utama aktif
+app.get('/api/main-screen-status', (req, res) => {
+  const isActive = mainScreenSocketId && io.sockets.sockets.get(mainScreenSocketId);
+  res.json({ active: !!isActive, socketId: mainScreenSocketId });
+});
+
+// Admin roll — kirim HANYA ke layar utama
 app.post('/api/admin/roll', (req, res) => {
   if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-  
+
   const { numDice } = req.body;
   if (numDice) gameState.numDice = parseInt(numDice);
-  
-  gameState.isRolling = true;
-  io.emit('roll-start', { numDice: gameState.numDice });
-  
-  setTimeout(() => {
-    const results = rollDice(
-      gameState.numDice,
-      gameState.mode,
-      gameState.forcedColors,
-      gameState.forceAll,
-      gameState.activeColors
-    );
-    gameState.lastResult = results;
-    gameState.isRolling = false;
-    io.emit('roll-result', { results, numDice: gameState.numDice });
-    res.json({ success: true, results });
-  }, 2500);
+
+  // Cek apakah layar utama masih konek
+  const mainSocket = mainScreenSocketId ? io.sockets.sockets.get(mainScreenSocketId) : null;
+
+  if (mainSocket) {
+    // Kirim hanya ke layar utama
+    mainSocket.emit('roll-start', { numDice: gameState.numDice });
+    setTimeout(() => {
+      const results = rollDice(gameState.numDice, gameState.mode, gameState.forcedColors, gameState.forceAll, gameState.activeColors);
+      gameState.lastResult = results;
+      mainSocket.emit('roll-result', { results, numDice: gameState.numDice });
+      res.json({ success: true, results });
+    }, 2500);
+  } else {
+    // Layar utama belum terdaftar
+    res.json({ success: false, message: 'Layar utama belum terdaftar! Buka https://livedice.mooo.com?screen=main dulu.' });
+  }
 });
 
 app.post('/api/admin/settings', (req, res) => {
   if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-  
   const { mode, forcedColors, forceAll, numDice, activeColors } = req.body;
-  
   if (mode !== undefined) gameState.mode = mode;
   if (forcedColors !== undefined) gameState.forcedColors = forcedColors;
   if (forceAll !== undefined) gameState.forceAll = forceAll;
   if (numDice !== undefined) gameState.numDice = parseInt(numDice);
   if (activeColors !== undefined) gameState.activeColors = activeColors;
-  
-  io.emit('state-update', gameState);
   res.json({ success: true, gameState });
 });
 
 app.post('/api/admin/reset', (req, res) => {
   if (!req.session.isAdmin) return res.status(401).json({ error: 'Unauthorized' });
-  
   gameState.mode = 'random';
   gameState.forcedColors = [];
   gameState.forceAll = null;
-  
-  io.emit('state-update', gameState);
   res.json({ success: true });
 });
 
-// Player roll - setiap pengguna spin sendiri, tidak mempengaruhi pengguna lain
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
   socket.emit('state-update', gameState);
+  socket.emit('your-socket-id', socket.id);
 
-  // Tiap socket punya state rolling sendiri
+  // Jika client daftar sebagai layar utama
+  socket.on('register-main', () => {
+    mainScreenSocketId = socket.id;
+    console.log('Main screen via socket:', socket.id);
+    socket.emit('registered-as-main', { success: true });
+  });
+
+  // Player biasa spin sendiri (tidak pengaruh ke orang lain)
   let socketRolling = false;
-
   socket.on('request-roll', (data) => {
-    if (socketRolling) return; // cegah spam
+    if (socketRolling) return;
     socketRolling = true;
-
     const requestedDice = (data && data.numDice) ? parseInt(data.numDice) : gameState.numDice;
-
-    // Kirim roll-start hanya ke pengguna ini saja (bukan broadcast)
     socket.emit('roll-start', { numDice: requestedDice });
-
     setTimeout(() => {
-      const results = rollDice(
-        requestedDice,
-        gameState.mode,
-        gameState.forcedColors,
-        gameState.forceAll,
-        gameState.activeColors
-      );
-      // Kirim hasil hanya ke pengguna ini saja
+      const results = rollDice(requestedDice, gameState.mode, gameState.forcedColors, gameState.forceAll, gameState.activeColors);
       socket.emit('roll-result', { results, numDice: requestedDice });
       socketRolling = false;
     }, 2500);
   });
 
   socket.on('disconnect', () => {
+    if (mainScreenSocketId === socket.id) {
+      mainScreenSocketId = null;
+      console.log('Main screen disconnected');
+    }
     console.log('Client disconnected:', socket.id);
   });
 });
 
-// Serve admin page
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin.html'));
 });
 
 server.listen(PORT, () => {
-  console.log(`🎲 DADU MONYUN Server running on http://localhost:${PORT}`);
+  console.log(`🎲 Server running on http://localhost:${PORT}`);
   console.log(`🔑 Admin password: ${ADMIN_PASSWORD}`);
 });
