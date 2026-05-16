@@ -191,29 +191,49 @@ function showFingersCrossed(count) {
   title.textContent = 'FINGERS CROSSED..';
   container.appendChild(title);
 
-  // Baris dadu
+  // Baris dadu pakai class dice biasa (sama seperti hasil)
   const row = document.createElement('div');
   row.className = 'fingers-crossed-row';
   row.id = 'fingersDiceRow';
 
+  const allColors = activeColors.length > 0 ? activeColors : COLORS;
   for (let i = 0; i < count; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'dice-wrap';
+
+    const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
     const dice = document.createElement('div');
-    dice.className = 'fc-dice';
+    dice.className = 'dice rolling';
     dice.id = 'fc-dice-' + i;
-    dice.innerHTML = '<div class="fc-dot"></div>';
-    row.appendChild(dice);
+    dice.setAttribute('data-color', randomColor);
+    dice.innerHTML = '<div class="dice-color-display"></div>';
+
+    const label = document.createElement('div');
+    label.className = 'dice-label';
+    label.id = 'fc-label-' + i;
+    label.style.color = COLOR_HEX[randomColor];
+    label.textContent = COLOR_LABEL[randomColor];
+
+    wrap.appendChild(dice);
+    wrap.appendChild(label);
+    row.appendChild(wrap);
   }
 
   container.appendChild(row);
 }
 
 function updateFingersCrossedDice(count) {
+  const allColors = activeColors.length > 0 ? activeColors : COLORS;
   for (let i = 0; i < count; i++) {
     const dice = document.getElementById('fc-dice-' + i);
+    const label = document.getElementById('fc-label-' + i);
     if (!dice) continue;
-    // Dadu tetap putih/biru muda saat spin, hanya sedikit bergetar
-    dice.style.backgroundColor = '#ddeeff';
-    dice.style.boxShadow = '0 4px 24px rgba(0,0,0,0.15), inset 0 2px 6px rgba(255,255,255,0.8)';
+    const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
+    dice.setAttribute('data-color', randomColor);
+    if (label) {
+      label.style.color = COLOR_HEX[randomColor];
+      label.textContent = COLOR_LABEL[randomColor];
+    }
   }
 }
 
