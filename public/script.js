@@ -15,7 +15,7 @@ if (isMainScreen) {
     // Tampilkan badge layar utama
     const badge = document.createElement('div');
     badge.style.cssText = 'position:fixed;top:10px;right:10px;background:#00a000;color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;z-index:9999;';
-    badge.textContent = '🖥️ LAYAR UTAMA AKTIF';
+    badge.textContent = '';
     document.body.appendChild(badge);
   });
 }
