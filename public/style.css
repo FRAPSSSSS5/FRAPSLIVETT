@@ -704,3 +704,25 @@ body.hide-cursor * { cursor: none !important; }
 }
 .connection-badge.connected .status-dot { background: #00cc44; box-shadow: 0 0 6px #00cc44; }
 .connection-badge.disconnected .status-dot { background: #ff4444; box-shadow: 0 0 6px #ff4444; }
+
+.fingers-crossed-title {
+  width: 100%;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #00ff88;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px #00ff88;
+  margin-bottom: 12px;
+  animation: textPulse 0.5s ease-in-out infinite alternate;
+}
+
+.fingers-crossed-row {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
