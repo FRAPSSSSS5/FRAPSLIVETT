@@ -208,13 +208,12 @@ function showFingersCrossed(count) {
 }
 
 function updateFingersCrossedDice(count) {
-  const allColors = activeColors.length > 0 ? activeColors : COLORS;
   for (let i = 0; i < count; i++) {
     const dice = document.getElementById('fc-dice-' + i);
     if (!dice) continue;
-    const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
-    dice.style.backgroundColor = COLOR_HEX[randomColor];
-    dice.style.boxShadow = `0 0 18px 4px ${COLOR_HEX[randomColor]}88`;
+    // Dadu tetap putih/biru muda saat spin, hanya sedikit bergetar
+    dice.style.backgroundColor = '#ddeeff';
+    dice.style.boxShadow = '0 4px 24px rgba(0,0,0,0.15), inset 0 2px 6px rgba(255,255,255,0.8)';
   }
 }
 
