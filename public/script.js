@@ -7,16 +7,11 @@ const urlParams = new URLSearchParams(window.location.search);
 const isMainScreen = urlParams.get('screen') === 'main';
 
 if (isMainScreen) {
-  // Daftarkan sebagai layar utama saat connect
   socket.on('connect', () => {
     socket.emit('register-main');
   });
   socket.on('registered-as-main', () => {
-    // Tampilkan badge layar utama
-    const badge = document.createElement('div');
-    badge.style.cssText = 'position:fixed;top:10px;right:10px;background:#00a000;color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;z-index:9999;';
-    badge.textContent = '';
-    document.body.appendChild(badge);
+    // Badge dihapus
   });
 }
 
@@ -105,7 +100,6 @@ function toggleColor(color, enabled) {
     toggle?.classList.add('active');
   } else {
     if (activeColors.length <= 1) {
-      // Must keep at least 1 color
       const checkbox = toggle?.querySelector('input[type="checkbox"]');
       if (checkbox) checkbox.checked = true;
       shakeElement(toggle);
@@ -115,8 +109,6 @@ function toggleColor(color, enabled) {
     toggle?.classList.remove('active');
   }
   updatePercentages();
-  
-  // Sync to server
   fetch('/api/admin/settings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -149,20 +141,22 @@ function startRollingAnimation() {
   if (isRolling) return;
   isRolling = true;
   numDice = parseInt(document.getElementById('numDiceSelect').value);
-  
+
   const btn = document.getElementById('rollBtn');
   btn.disabled = true;
   btn.classList.add('rolling');
-  btn.innerHTML = '<span class="btn-icon">⚙️</span> SEDANG MENGOCOK...';
-  
-  document.getElementById('rollingText').classList.add('show');
-  
+  btn.innerHTML = '⚙️ SEDANG MENGOCOK...';
+
+  // Tampilkan animasi FINGERS CROSSED
+  showFingersCrossed(numDice);
+
+  // Sembunyikan hasil sebelumnya
+  clearResultBar();
+
   playRollSound();
-  buildDice(numDice, null); // build rolling dice
-  
-  // Animate rapid color changes
+
   rollInterval = setInterval(() => {
-    updateRollingDice();
+    updateFingersCrossedDice(numDice);
   }, 120);
 }
 
@@ -171,99 +165,123 @@ function stopRollingAnimation(results) {
     clearInterval(rollInterval);
     rollInterval = null;
   }
-  
+
   setTimeout(() => {
     isRolling = false;
-    
+
     const btn = document.getElementById('rollBtn');
     btn.disabled = false;
     btn.classList.remove('rolling');
-    btn.innerHTML = '<span class="btn-icon">🎲</span> GULIR LAGI!';
-    
-    document.getElementById('rollingText').classList.remove('show');
-    
+    btn.innerHTML = '🎲 SPIN LAGI!';
+
     showResults(results);
+    showResultBar(results);
     playResultSound();
   }, 200);
 }
 
-function buildDice(count, results) {
+// ===== FINGERS CROSSED ANIMATION =====
+function showFingersCrossed(count) {
   const container = document.getElementById('diceContainer');
   container.innerHTML = '';
-  
+
+  // Judul FINGERS CROSSED
+  const title = document.createElement('div');
+  title.className = 'fingers-crossed-title';
+  title.textContent = 'FINGERS CROSSED..';
+  container.appendChild(title);
+
+  // Baris dadu
+  const row = document.createElement('div');
+  row.className = 'fingers-crossed-row';
+  row.id = 'fingersDiceRow';
+
   for (let i = 0; i < count; i++) {
-    const wrap = document.createElement('div');
-    wrap.className = 'dice-wrap';
-    
     const dice = document.createElement('div');
-    dice.className = 'dice rolling';
-    dice.id = 'dice-' + i;
-    dice.setAttribute('data-color', 'biru');
-    
-    dice.innerHTML = getDiceDots(6);
-    
-    const label = document.createElement('div');
-    label.className = 'dice-label';
-    label.id = 'label-' + i;
-    label.style.color = COLOR_HEX['biru'];
-    label.textContent = '?';
-    
-    wrap.appendChild(dice);
-    wrap.appendChild(label);
-    container.appendChild(wrap);
+    dice.className = 'fc-dice';
+    dice.id = 'fc-dice-' + i;
+    dice.innerHTML = '<div class="fc-dot"></div>';
+    row.appendChild(dice);
   }
+
+  container.appendChild(row);
 }
 
-function getDiceDots(num) {
-  // Titik putih dihilangkan — dadu sekarang tampil sebagai warna solid
-  return `<div class="dice-color-display"></div>`;
-}
-
-function updateRollingDice() {
+function updateFingersCrossedDice(count) {
   const allColors = activeColors.length > 0 ? activeColors : COLORS;
-  for (let i = 0; i < numDice; i++) {
-    const dice = document.getElementById('dice-' + i);
-    const label = document.getElementById('label-' + i);
+  for (let i = 0; i < count; i++) {
+    const dice = document.getElementById('fc-dice-' + i);
     if (!dice) continue;
-    
     const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
-    dice.setAttribute('data-color', randomColor);
-    dice.innerHTML = getDiceDots(Math.floor(Math.random() * 6) + 1);
-    
-    if (label) {
-      label.style.color = COLOR_HEX[randomColor];
-      label.textContent = COLOR_LABEL[randomColor];
-    }
+    dice.style.backgroundColor = COLOR_HEX[randomColor];
+    dice.style.boxShadow = `0 0 18px 4px ${COLOR_HEX[randomColor]}88`;
   }
+}
+
+// ===== BUILD DICE (hasil) =====
+function getDiceDots() {
+  return `<div class="dice-color-display"></div>`;
 }
 
 function showResults(results) {
   const container = document.getElementById('diceContainer');
   container.innerHTML = '';
-  
+
   results.forEach((color, i) => {
     const wrap = document.createElement('div');
     wrap.className = 'dice-wrap';
-    
+
     const dice = document.createElement('div');
     dice.className = 'dice result-show';
     dice.setAttribute('data-color', color);
-    dice.innerHTML = getDiceDots(Math.floor(Math.random() * 6) + 1);
-    
+    dice.innerHTML = getDiceDots();
+
     const label = document.createElement('div');
     label.className = 'dice-label';
     label.style.color = COLOR_HEX[color];
     label.textContent = COLOR_LABEL[color];
-    
+
     wrap.appendChild(dice);
     wrap.appendChild(label);
     container.appendChild(wrap);
-    
-    // Staggered animation
+
     setTimeout(() => {
       dice.style.animationDelay = (i * 0.15) + 's';
     }, 10);
   });
+}
+
+// ===== RESULT BAR BAWAH TOMBOL =====
+function showResultBar(results) {
+  const bar = document.getElementById('resultBar');
+  if (!bar) return;
+
+  bar.innerHTML = '';
+
+  const label = document.createElement('span');
+  label.textContent = 'Hasil: ';
+  label.style.color = '#aaa';
+  label.style.marginRight = '6px';
+  bar.appendChild(label);
+
+  results.forEach((color, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'result-chip';
+    chip.textContent = COLOR_LABEL[color];
+    chip.style.background = COLOR_HEX[color];
+    chip.style.color = color === 'kuning' ? '#222' : '#fff';
+    chip.style.animationDelay = (i * 0.1) + 's';
+    bar.appendChild(chip);
+  });
+
+  bar.classList.add('visible');
+}
+
+function clearResultBar() {
+  const bar = document.getElementById('resultBar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  bar.classList.remove('visible');
 }
 
 // ===== AUDIO =====
@@ -323,7 +341,6 @@ function toggleFullscreen() {
   }
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   if (e.key === ' ' || e.key === 'Enter') {
     e.preventDefault();
@@ -334,5 +351,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Init
 updatePercentages();
