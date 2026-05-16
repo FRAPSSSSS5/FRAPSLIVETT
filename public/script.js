@@ -185,58 +185,29 @@ function showFingersCrossed(count) {
   const container = document.getElementById('diceContainer');
   container.innerHTML = '';
 
-  // Judul FINGERS CROSSED
   const title = document.createElement('div');
   title.className = 'fingers-crossed-title';
   title.textContent = 'FINGERS CROSSED..';
   container.appendChild(title);
 
-  // Baris dadu pakai class dice biasa (sama seperti hasil)
   const row = document.createElement('div');
   row.className = 'fingers-crossed-row';
   row.id = 'fingersDiceRow';
 
-  const allColors = activeColors.length > 0 ? activeColors : COLORS;
   for (let i = 0; i < count; i++) {
-    const wrap = document.createElement('div');
-    wrap.className = 'dice-wrap';
-
-    const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
     const dice = document.createElement('div');
-    dice.className = 'dice rolling';
+    dice.className = 'fc-dice';
     dice.id = 'fc-dice-' + i;
-    dice.setAttribute('data-color', randomColor);
-    dice.innerHTML = '<div class="dice-color-display"></div>';
-
-    const label = document.createElement('div');
-    label.className = 'dice-label';
-    label.id = 'fc-label-' + i;
-    label.style.color = COLOR_HEX[randomColor];
-    label.textContent = COLOR_LABEL[randomColor];
-
-    wrap.appendChild(dice);
-    wrap.appendChild(label);
-    row.appendChild(wrap);
+    dice.innerHTML = '<div class="fc-dot"></div>';
+    row.appendChild(dice);
   }
 
   container.appendChild(row);
 }
 
 function updateFingersCrossedDice(count) {
-  const allColors = activeColors.length > 0 ? activeColors : COLORS;
-  for (let i = 0; i < count; i++) {
-    const dice = document.getElementById('fc-dice-' + i);
-    const label = document.getElementById('fc-label-' + i);
-    if (!dice) continue;
-    const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
-    dice.setAttribute('data-color', randomColor);
-    if (label) {
-      label.style.color = COLOR_HEX[randomColor];
-      label.textContent = COLOR_LABEL[randomColor];
-    }
-  }
+  // Dadu tetap putih saat spin, tidak berubah warna
 }
-
 // ===== BUILD DICE (hasil) =====
 function getDiceDots() {
   return `<div class="dice-color-display"></div>`;
