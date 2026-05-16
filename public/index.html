@@ -6,103 +6,12 @@
   <title>Live Dice Color</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    /* Extra dice area polish */
     .dice-wrap {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    /* ===== FINGERS CROSSED ===== */
-    .fingers-crossed-title {
-      font-family: 'Arial Black', 'Impact', sans-serif;
-      font-size: 2rem;
-      font-weight: 900;
-      color: #2ecc40;
-      text-shadow: 3px 3px 0 #145a1a, 0 0 18px #2ecc4088;
-      letter-spacing: 2px;
-      text-align: center;
-      margin-bottom: 18px;
-      animation: fcPulse 0.6s ease-in-out infinite alternate;
-    }
-
-    @keyframes fcPulse {
-      from { transform: scale(1); opacity: 0.85; }
-      to   { transform: scale(1.04); opacity: 1; }
-    }
-
-    .fingers-crossed-row {
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    .fc-dice {
-      width: 85px;
-      height: 85px;
-      border-radius: 20px;
-      background: #ddeeff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 20px rgba(100,160,220,0.35), inset 0 2px 8px rgba(255,255,255,0.9), inset 0 -2px 6px rgba(180,210,240,0.5);
-      border: 2px solid #c5dff5;
-      animation: fcBounce 0.45s ease-in-out infinite alternate;
-    }
-
-    .fc-dice:nth-child(2) { animation-delay: 0.1s; }
-    .fc-dice:nth-child(3) { animation-delay: 0.2s; }
-    .fc-dice:nth-child(4) { animation-delay: 0.3s; }
-
-    @keyframes fcBounce {
-      from { transform: translateY(0px) scale(1) rotate(-1deg); }
-      to   { transform: translateY(-10px) scale(1.06) rotate(1deg); }
-    }
-
-    .fc-dot {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #c8e0f8, #a0c8f0);
-      box-shadow: 0 2px 5px rgba(100,160,220,0.5), inset 0 1px 2px rgba(255,255,255,0.6);
-    }
-
-    /* ===== RESULT BAR ===== */
-    #resultBar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      min-height: 0;
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.3s ease;
-      margin: 0 auto;
-    }
-
-    #resultBar.visible {
-      max-height: 80px;
-      opacity: 1;
-      margin: 10px auto 0;
-    }
-
-    .result-chip {
-      display: inline-block;
-      padding: 6px 18px;
-      border-radius: 999px;
-      font-weight: 900;
-      font-size: 0.95rem;
-      letter-spacing: 1px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-      animation: chipPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-    }
-
-    @keyframes chipPop {
-      from { transform: scale(0.5); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
@@ -149,11 +58,8 @@
 
     <!-- ROLL BUTTON -->
     <button class="roll-btn" id="rollBtn" onclick="rollDice()">
-      <span class="btn-icon">🎲</span> SPIN LAGI!
+      <span class="btn-icon"></span> SPIN LAGI!
     </button>
-
-    <!-- RESULT BAR (bawah tombol) -->
-    <div id="resultBar"></div>
 
     <!-- COLOR INFO -->
     <div class="color-info">
@@ -179,6 +85,73 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>
+
+<!-- Rainbow Cursor Trail -->
+<canvas id="rbTrailCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;"></canvas>
+<script>
+(function() {
+  const cvs = document.getElementById('rbTrailCanvas');
+  const ctx = cvs.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = cvs.width = window.innerWidth;
+    H = cvs.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const particles = [];
+  let hue = 0;
+  let mx = W / 2, my = H / 2;
+  let px = mx, py = my;
+
+  document.addEventListener('mousemove', (e) => {
+    px = mx; py = my;
+    mx = e.clientX;
+    my = e.clientY;
+    const speed = Math.hypot(mx - px, my - py);
+    const count = Math.max(2, Math.floor(speed / 4));
+    for (let i = 0; i < count; i++) {
+      const t = i / count;
+      particles.push({
+        x: px + (mx - px) * t,
+        y: py + (my - py) * t,
+        hue: hue,
+        r: Math.min(28, 8 + speed * 0.4),
+        alpha: 0.85,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        life: 1
+      });
+      hue = (hue + 2) % 360;
+    }
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life -= 0.018;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.r *= 0.995;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+      grad.addColorStop(0, `hsla(${p.hue},100%,70%,${p.life * p.alpha})`);
+      grad.addColorStop(0.5, `hsla(${p.hue},100%,55%,${p.life * p.alpha * 0.6})`);
+      grad.addColorStop(1, `hsla(${p.hue},100%,40%,0)`);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+    hue = (hue + 0.3) % 360;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
 
 </body>
 </html>
