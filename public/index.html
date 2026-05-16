@@ -6,12 +6,102 @@
   <title>Live Dice Color</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Extra dice area polish */
     .dice-wrap {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    /* ===== FINGERS CROSSED ===== */
+    .fingers-crossed-title {
+      font-family: 'Arial Black', 'Impact', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #2ecc40;
+      text-shadow: 3px 3px 0 #145a1a, 0 0 18px #2ecc4088;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 18px;
+      animation: fcPulse 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes fcPulse {
+      from { transform: scale(1); opacity: 0.85; }
+      to   { transform: scale(1.04); opacity: 1; }
+    }
+
+    .fingers-crossed-row {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .fc-dice {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      background: #e0eaff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      transition: background-color 0.1s, box-shadow 0.1s;
+      animation: fcBounce 0.5s ease-in-out infinite alternate;
+    }
+
+    .fc-dice:nth-child(2) { animation-delay: 0.1s; }
+    .fc-dice:nth-child(3) { animation-delay: 0.2s; }
+    .fc-dice:nth-child(4) { animation-delay: 0.3s; }
+
+    @keyframes fcBounce {
+      from { transform: translateY(0px) scale(1); }
+      to   { transform: translateY(-8px) scale(1.05); }
+    }
+
+    .fc-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+    }
+
+    /* ===== RESULT BAR ===== */
+    #resultBar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 0;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.3s ease;
+      margin: 0 auto;
+    }
+
+    #resultBar.visible {
+      max-height: 80px;
+      opacity: 1;
+      margin: 10px auto 0;
+    }
+
+    .result-chip {
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+      animation: chipPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    @keyframes chipPop {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
@@ -58,8 +148,11 @@
 
     <!-- ROLL BUTTON -->
     <button class="roll-btn" id="rollBtn" onclick="rollDice()">
-      <span class="btn-icon"></span> SPIN LAGI!
+      <span class="btn-icon">🎲</span> SPIN LAGI!
     </button>
+
+    <!-- RESULT BAR (bawah tombol) -->
+    <div id="resultBar"></div>
 
     <!-- COLOR INFO -->
     <div class="color-info">
