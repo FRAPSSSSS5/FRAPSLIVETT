@@ -763,3 +763,29 @@ body.hide-cursor * { cursor: none !important; }
   background: rgba(150,180,220,0.6);
   border-radius: 50%;
 }
+
+/* ===== RESULT BAR ===== */
+.result-bar {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0 4px 0;
+  padding: 12px 16px;
+  background: rgba(0, 10, 40, 0.8);
+  border: 2px solid rgba(100,160,255,0.4);
+  border-radius: 16px;
+}
+.result-bar.visible { display: flex; }
+
+.result-chip {
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  border: 3px solid rgba(255,255,255,0.7);
+  box-shadow: 0 0 14px currentColor, 0 2px 8px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
